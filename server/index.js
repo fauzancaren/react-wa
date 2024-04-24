@@ -23,18 +23,11 @@ io.on("connection", (socket) => {
 let dataSession = waSessionFile.loadData(); 
 dataSession.forEach(session => {
     waManager.init(session.number) 
+}); 
+
+server.listen(port,()=>{
+    console.log("server start")
 });
-
-waManager.init("123456789") 
-
-
-
-
-
-
-
-
-
 
 
 // const myData = {
@@ -65,7 +58,3 @@ waManager.init("123456789")
 // console.log('Loaded Data:', sessionFile.loadData());
 // sessionFile.updateDataById("test1", { name: 31, status: ["cycling", "test"] });
 // console.log('Loaded Data:', sessionFile.loadData());
-
-server.listen(port,()=>{
-    console.log("server start")
-});
