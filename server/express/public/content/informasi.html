@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title> 
+	<link href="css/account.css" rel="stylesheet" />   
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet"  />
+</head>
+<body>
+    <div class="row p-2 align-items-center">
+        <div class="col-md-4 col-12"> 
+            <h3>Account</h3>
+        </div>
+        <div class="col-md-8 col-12"> 
+            <nav class="float-md-end float-start " style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <div class="d-flex align-items-center ">
+                            <ion-icon name="information-circle-sharp"></ion-icon>
+                            <span class="ps-2">Informasi</span>
+                        </div>
+                    </li> 
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <div class="card shadow-sm rounded">
+        <div class="card-body">
+            <div class="d-flex justify-content-between ">
+                <span class="card-title fw-bold">Informasi</span>  
+            </div>
+            <div class="row mb-3">
+                <label for="code" class="col-sm-2 col-form-label col-form-label-sm">code</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control form-control-sm"  id="code" value="ID00003" placeholder="col-form-label-sm">
+                </div> 
+            </div> 
+            <div class="row mb-3">
+                <label for="name" class="col-sm-2 col-form-label col-form-label-sm">Username</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control form-control-sm" id="name" value="Erwin Brachmana" placeholder="col-form-label-sm">
+                </div>  
+            </div> 
+            <div class="row mb-3">
+                <label for="uuid" class="col-sm-2 col-form-label col-form-label-sm">uuid</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control form-control-sm"  id="uuid" value="d8a5c814-0c96-4b51-bfc5-fa23992141a9" placeholder="col-form-label-sm">
+                </div>  
+            </div> 
+            <div class="row g-3 mb-3">
+                <div class="offset-2 col-sm-10">
+                    <button type="submit" class="btn btn-primary mb-3" id="changename">Confirm identity</button>
+                </div>  
+              
+            </div>  
+            <hr>
+            <div class="row g-3"> 
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary mb-3" id="listuser">get list users</button>
+                </div>
+            </div> 
+            <ul id="user" class="list-group"> 
+            </div>
+        </div>
+    </div>  
+	<script>
+		$(document).ready(function() {   
+            // socket.emit("login", {
+            //     "code": $("#code").val(),
+            //     "name": $("#name").val(),
+            //     "uuid": $("#uuid").val()
+            // });
+            // $("#changename").click(function(){ 
+            //     socket.emit("login", {
+            //         "code": $("#code").val(),
+            //         "name": $("#name").val(),
+            //         "uuid": $("#uuid").val()
+            //     });
+            // })
+
+            $("#listuser").click(function(){
+                console.log("get message");
+                socket.emit("get_all_message",{id: "0895352992663"});
+            })
+
+            socket.on('get_all_message', function(data) { 
+                $('#user').empty();
+                $('#user').append(data);
+                // data.forEach(function(row, index) {
+                //     $('#user').append(`
+                //         <li class="list-group-item">
+                //             <p class="mb-1">${row["code"]} ${row["name"]}</p>
+                //             <small>${row["uuid"]}</small>
+                //         </li>
+                //     `);
+                // }); 
+            }); 
+		});
+	</script>
+</body>
+</html>

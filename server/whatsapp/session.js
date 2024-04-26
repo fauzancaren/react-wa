@@ -1,6 +1,6 @@
 const fs = require('fs'); 
-const path = require('path');
- 
+const path = require('path');  
+const rootPath = path.resolve(__dirname, '../'); 
 const dataFilePath = path.join(__dirname, 'whatsapp-session.json');
 
 function saveData(newData) {
@@ -50,7 +50,18 @@ function removeDataById(id) {
 
     const jsonData = JSON.stringify(filteredData, null, 2);
     fs.writeFileSync(dataFilePath, jsonData, 'utf8');
-    console.log(`Data with id ${id} has been removed successfully.`);
+
+    console.log(`Data with id ${id} has been removed successfully.`); 
+
+    const {getList,setList} = require('./base');
+    const list = getList();
+    const sessionIndex = list.findIndex(sess => sess.id == id);
+    list.splice(sessionIndex, 1);
+    setList(list);
+
+    console.log(path.join(rootPath, '.wwebjs_auth/session-' + id)); 
+    fs.rmSync(path.join(rootPath, '.wwebjs_auth/session-' + id), { recursive: true, force: true }); 
+           
 }
 function updateDataById(id, newData) {
     if (!fs.existsSync(dataFilePath)) {

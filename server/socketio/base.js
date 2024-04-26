@@ -3,7 +3,7 @@ const ioClientConfig  = require('./config');
 let io = null;
 
 // Fungsi untuk menginisialisasi Socket.IO dengan server HTTP
-function init(httpServer) {
+function initIO(httpServer) {
     io = new Server(httpServer, ioClientConfig);
     return io;
 }
@@ -16,4 +16,4 @@ function getIO() {
     return io;
 }
 
-module.exports = { init, getIO };
+module.exports = { initIO, getIO };

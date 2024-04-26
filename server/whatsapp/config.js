@@ -20,7 +20,7 @@ module.exports = function(clientId) {
             clientId: clientId
         }),
         webVersionCache: {
-            remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2402.5-beta.html',
+            remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2409.0.html',
             type: 'remote'
         }
     };

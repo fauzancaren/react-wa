@@ -1,34 +1,32 @@
-
-
-
-const express = require("express");
-const http = require("http"); 
+const SocketIO = require('./socketio/base'); 
  
-const socketManager = require('./socketio/base');
-const ioClientHandles  = require('./socketio/handler');  
-
+const express = require("express"); 
+const app = express(); // CREATE WEB  
+const port = process.env.NODE_PORT || 2000; 
+const http = require("http");
+const server = http.createServer(app); 
+const io = SocketIO.initIO(server);   
+const ioClientHandles  = require('./socketio/handler'); 
+io.on("connection", (socket) => {
+    ioClientHandles(socket); 
+});  
 
 const waSessionFile = require("./whatsapp/session"); 
 const waManager = require('./whatsapp/base');
-
-const app = express(); // CREATE WEB  
-const port = process.env.NODE_PORT || 2000; 
-const server = http.createServer(app); 
-const io = socketManager.init(server); 
-
-io.on("connection", (socket) => {
-    ioClientHandles(socket); 
-}); 
- 
+//Membuat Seesion Whatsapp
 let dataSession = waSessionFile.loadData(); 
 dataSession.forEach(session => {
-    waManager.init(session.number) 
+    console.log(session.id);
+    waManager.init(session.id) 
 }); 
-
 server.listen(port,()=>{
-    console.log("server start")
+    console.log("server start"); 
 });
 
+
+const {init_app,router} = require("./express/base");
+init_app(app);
+app.use(router);
 
 // const myData = {
 //     id: "test2",

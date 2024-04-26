@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title> 
+	<link href="css/account.css" rel="stylesheet" />   
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet"  /> 
+</head>
+<body>
+    <div class="row p-2 align-items-center">
+        <div class="col-md-4 col-12"> 
+            <h3>Account</h3>
+        </div>
+        <div class="col-md-8 col-12"> 
+            <nav class="float-md-end float-start " style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <div class="d-flex align-items-center ">
+                            <ion-icon name="person-sharp"></ion-icon>
+                            <span class="ps-2">Account</span>
+                        </div>
+                    </li> 
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <div class="card shadow-sm rounded">
+        <div class="card-body">
+            <div class="d-flex justify-content-between ">
+                <span class="card-title fw-bold">List Account</span> 
+                <button class="btn btn-sm btn-orange" data-bs-toggle="modal" data-bs-target="#modal-add"> 
+                    <div class="d-flex align-items-center ">
+                        <ion-icon name="add-outline"></ion-icon>
+                        <span class="ps-2">Tambah Data</span>
+                    </div>
+                </button>
+            </div>
+ 
+            <div class="d-flex g-2" style="gap:10px" id="list-user">   
+            </div>
+			<div class="row nodata" style="display:none">
+				<div class="not-found d-flex flex-column align-items-center my-4">
+					<ion-icon name="search-outline"></ion-icon>
+					<span class="header">Tidak Ada Data</span>
+					<span class="detail">Saat ini tidak ada yang terhubung dengan Whatsapp APi OBI, silahkan klik tambah data untuk menghubungkan account baru anda...!!!</span>
+				</div>
+			</div>
+			<div class="waiting">
+				<div class="d-flex flex-column" style=" align-items: center !important; margin: 5rem 0;"> 
+					<ion-spinner name="dots"></ion-spinner> 
+					<span>sedang sinkronasi data server</span>
+				</div> 
+				
+			</div>
+        </div>
+    </div>  
+	<div id="custom-modal">
+
+	</div> 
+	<div class="modal animate__animated" tabindex="-1" id="modal-add" data-bs-backdrop="static" data-bs-keyboard="false" >
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">
+						<div class="d-flex align-items-center ">
+							<ion-icon class="text-success" name="add-circle-sharp"></ion-icon>
+							<span class="ps-2">Tambah Account</span>
+						</div>
+					</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body needs-validation">
+					<div class="form-floating mb-3"> 
+						<input type="text" class="form-control form-control-sm" id="client-id" placeholder="62 8XX XXXX XXXX" required>
+						<label for="client-id">Nomer Whatsapp</label> 
+						<div class="invalid-feedback">
+							masukan nomer whatsapp...!!!
+						</div>
+					</div>
+					<div class="form-floating">
+						<input type="text" class="form-control form-control-sm" id="client-description" placeholder="Masukan keterangan dari account ini" required>
+						<label for="client-description">Keterangan</label>
+						<div class="invalid-feedback">
+							masukan keterangan dari account ini
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batalkan</button>
+					<button type="button" class="btn btn-success" id="add-client-btn">Simpan</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	   
+	<script>
+		$(document).ready(function() {
+			setTimeout(function(){ 
+				$(".waiting").hide();
+				$(".nodata").show();
+				let fadeIn = 'animate__zoomInUp';
+				let fadeOut = 'animate__zoomOutDown'; 
+				socket.emit('load-data-whatsapp');
+				// MODAL On show
+				$('#modal-add').on('show.bs.modal', function () {
+					$(this).removeClass(fadeOut);
+					$(this).addClass(fadeIn);
+					$('#client-id').val(""); 
+					$('#client-description').val(""); 
+					$(".needs-validation").removeClass("was-validated");
+				});
+
+				// MODAL On closing
+				$('#modal-add').on('hide.bs.modal', function (e) {
+					let $this = $(this); 
+					if ($this.hasClass(fadeIn)) {
+						$this.removeClass(fadeIn);
+						$this.addClass(fadeOut);
+						e.preventDefault();
+
+						setTimeout(function () {
+							$this.modal('hide');
+						}, 1000);  
+					}
+				});
+
+				// MODAL on Save
+				$('#add-client-btn').click(function() {
+					$(".needs-validation").addClass("was-validated");
+					if($('#client-id').val() == "" ||  $('#client-description').val()== "") return;
+					var clientId = $('#client-id').val();
+					var clientDescription = $('#client-description').val(); 
+					var clientClass = 'client-' + clientId;   
+
+					socket.emit('create-data-whatsapp', {
+						id: clientId,
+						description: clientDescription
+					});
+					$('#client-id').val(""); 
+					$('#client-description').val(""); 
+					$(".needs-validation").removeClass("was-validated");
+					$('#modal-add').modal("hide");
+					//$(".nodata").hide();
+				});
+  				
+				// MODAL on delete
+				remove_session = function(id){
+					Swal.fire({
+						title: 'Anda yakin?',
+						text: "Anda ingin menghapus session " + id,
+						icon: 'warning',
+						showCancelButton: true,
+						confirmButtonColor: 'green',
+						cancelButtonColor: '#d33',
+						confirmButtonText: 'ya, hapus sekarang!'
+						}).then((result) => {
+						if (result.isConfirmed) {
+							socket.emit('remove-data-whatsapp', {
+								id: id
+							});
+							Swal.fire({ 
+								title: 'Berhasil',
+								text: "Anda berhasil menghapus session " + id,
+								icon: 'success', 
+								confirmButtonColor: 'green',
+							})
+						}
+					})
+				}
+
+
+				function clientRefresh(data){ 
+
+					if(data.status == "loading_screen"){
+
+						console.log("loading_screen",data);
+						$(`.box-account.client-${data.id} .status`).unbind("click");
+						$(`.box-account.client-${data.id} .status`).html(`loading ${data.detail.percent}% ${data.detail.text}`);
+						$(`.box-account.client-${data.id} .status`).css('color', 'blue'); 
+
+					}else if(data.status == "qr"){
+
+						console.log("Qr Code",data);
+
+						$(`.box-account.client-${data.id} .status`).html(data.detail.text);
+						$(`.box-account.client-${data.id} .status`).css('color', '#ff9800'); 
+						$(`.box-account.client-${data.id} .status`).click(function(){  
+							$(`#modal-scan-client-${data.id}`).modal('show');
+						}); 
+						$(`#modal-scan-client-${data.id} #qrcode`).attr('src', data.detail.src); 
+						$(`#modal-scan-client-${data.id}`).modal('show');
+
+					}else if(data.status == "authenticated"){ 
+
+						console.log("authenticated",data);
+						$(`.box-account.client-${data.id} .status`).unbind("click"); 
+						$(`.box-account.client-${data.id} .status`).html(data.detail.text);
+						$(`.box-account.client-${data.id} .status`).css('color', '#ff9800'); 
+
+					}else if(data.status == "auth_failure"){ 
+
+						console.log("auth_failure",data);
+
+						$(`.box-account.client-${data.id} .status`).unbind("click"); 
+						$(`.box-account.client-${data.id} .status`).html(data.detail.text);
+						$(`.box-account.client-${data.id} .status`).css('color', 'red'); 
+						
+					}else if(data.status == "ready"){
+
+						console.log("ready",data);	 
+
+						$(`.box-account.client-${data.id} .status`).unbind("click"); 
+						$(`.box-account.client-${data.id} .status`).html(data.detail.text);
+						$(`.box-account.client-${data.id} .status`).css('color', 'green'); 
+						$(`#modal-scan-client-${data.id}`).modal('hide');
+
+					}else if(data.status == "disconnected"){
+
+						console.log("disconnected",data);	 
+
+						$(`.box-account.client-${data.id} .status`).unbind("click"); 
+						$(`.box-account.client-${data.id}`).remove();
+						$(`#modal-scan-client-${data.id}`).remove();
+						$(`#script-${data.id}`).remove();
+
+						if($("#list-user").find(".box-account").length == 0){
+							$(".nodata").show(); 
+						}
+					}else if(data.status == "new_data"){ 
+						console.log("new_data",data);	
+						var clientId = data.id;
+						var clientDescription = data.name; 
+						var clientClass = 'client-' + clientId;   
+						$("#list-user").append(`
+							<div class="box-account align-items-center d-flex flex-column p-2 ${clientClass}">
+								<img src="/asset/icon.png" alt="" height="100" width="100">
+								<span class="mt-2 header">${clientId}</span>
+								<span class="description">${clientDescription}</span>
+								<div class="status" style="color: #ff9800;">Connecting...</div> 
+								<button class="close" onclick="remove_session('${clientId}')"></button>
+							</div> 
+						`) 
+
+						$("#custom-modal").append(`
+							<div class="modal animate__animated" tabindex="-1" id="modal-scan-${clientClass}" data-bs-backdrop="static" data-bs-keyboard="false" >
+								<div class="modal-dialog">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title">
+												<div class="d-flex align-items-center ">
+													<ion-icon class="text-success" name="scan-circle-sharp"></ion-icon>
+													<span class="ps-2">Scan Whatsapp (${clientId})</span>
+												</div>
+											</h5>
+											<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+										</div>
+										<div class="modal-body text-center"> 
+											<img src="" alt="QR Code" id="qrcode">
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button> 
+										</div>
+									</div>
+								</div>
+							</div>`);
+						
+						$('<script>')
+							.attr('type', 'text/javascript')
+							.text(` 
+								// On show
+								$('#modal-scan-${clientClass}').on('show.bs.modal', function () {
+									$(this).removeClass("animate__zoomOutDown");
+									$(this).addClass("animate__zoomInUp");
+									$('#client-id').val(""); 
+									$('#client-description').val(""); 
+									$(".needs-validation").removeClass("was-validated");
+								});
+
+								// On closing
+								$('#modal-scan-${clientClass}').on('hide.bs.modal', function (e) {
+									let $this = $(this); 
+									if ($this.hasClass("animate__zoomInUp")) {
+										$this.removeClass("animate__zoomInUp");
+										$this.addClass("animate__zoomOutDown");
+										e.preventDefault();
+
+										setTimeout(function () {
+											$this.modal("hide");
+										}, 1000);
+									}
+								});`)
+						.appendTo(`#modal-scan-${clientClass}`); 
+
+
+						
+						$(".nodata").hide();
+					}
+
+
+					
+				}
+
+ 
+				  
+				socket.on('load-data-whatsapp', function(data) {
+					$("#list-user").html("");
+					$("#custom-modal").html(""); 
+					$(".nodata").show();
+				    console.log("init");
+					$('.client-container .client').not(':first').remove(); 
+					for (var i = 0; i < data.length; i++) {
+					    console.log("test");
+						$(".nodata").hide();
+						var session = data[i];
+
+						var clientId = session.id;
+						var clientDescription = session.name; 
+						var clientClass = 'client-' + clientId;  
+ 
+						$("#list-user").append(`
+							<div class="box-account align-items-center d-flex flex-column p-2 ${clientClass}">
+								<img src="/asset/icon.png" alt="" height="100" width="100">
+								<span class="mt-2 header">${clientId}</span>
+								<span class="description">${clientDescription}</span>
+								<div class="status">waiting...</div>  
+								<button class="close" onclick="remove_session('${clientId}')"></button>
+							</div> 
+						`);
+
+						$("#custom-modal").append(`
+							<div class="modal animate__animated" tabindex="-1" id="modal-scan-${clientClass}" data-bs-backdrop="static" data-bs-keyboard="false" >
+								<div class="modal-dialog">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title">
+												<div class="d-flex align-items-center ">
+													<ion-icon class="text-success" name="scan-circle-sharp"></ion-icon>
+													<span class="ps-2">Scan Whatsapp (${clientId})</span>
+												</div>
+											</h5>
+											<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+										</div>
+										<div class="modal-body text-center"> 
+											<img src="" alt="QR Code" id="qrcode">
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button> 
+										</div>
+									</div>
+								</div>
+							</div>`);
+						$('<script >')
+							.attr('type', 'text/javascript')
+							.text(` 
+								// On show
+								$('#modal-scan-${clientClass}').on('show.bs.modal', function () {
+									$(this).removeClass("animate__zoomOutDown");
+									$(this).addClass("animate__zoomInUp");
+									$(".needs-validation").removeClass("was-validated");
+								});
+
+								// On closing
+								$('#modal-scan-${clientClass}').on('hide.bs.modal', function (e) {
+									let $this = $(this); 
+									if ($this.hasClass("animate__zoomInUp")) {
+										$this.removeClass("animate__zoomInUp");
+										$this.addClass("animate__zoomOutDown");
+										e.preventDefault();
+
+										setTimeout(function () {
+											$this.modal("hide");
+										}, 1000);
+									}
+								});`)
+						.appendTo(`#modal-scan-${clientClass}`); 
+							
+						clientRefresh(session);  
+					}
+					
+				});
+				
+				socket.on("create-data-new", function(data){ 
+					clientRefresh(data);
+				})
+				socket.on('qr', function(data) { 
+					clientRefresh(data);
+				});
+
+				socket.on('loading_screen', function(data) { 
+					clientRefresh(data);
+				});
+
+				socket.on('authenticated', function(data) { 
+					clientRefresh(data);
+				}); 
+
+				socket.on('auth_failure', function(data) { 
+					clientRefresh(data);
+				}); 
+
+				socket.on('ready', function(data) {  
+					clientRefresh(data);
+				});
+
+				socket.on('disconnected', function(data) { 
+					clientRefresh(data);
+				});
+
+				socket.on('message', function(data) { 
+					$(`.box-account.client-${data.id} .logs`).prepend($('<li>').text(data.text));
+				});
+
+
+				
+
+			}, 1000);
+		});
+	</script>
+</body>
+</html>

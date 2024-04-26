@@ -1,7 +1,8 @@
 const configio = {
     cors:{
-        origin: "http://localhost:3000",
+        origin: "*",
         methods:["GET","POST"]
-    }
+    },
+    allowEIO3: true // false by default
 }
 module.exports = configio;
