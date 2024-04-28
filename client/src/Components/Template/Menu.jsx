@@ -10,10 +10,10 @@ const MenuComponent = () =>{
     }, [menuactive]);
     
     return(
-        <div className="flex">
+        <div className="flex bg-[#f6f6f9]">
             {/* <!-- Sidebar Section --> */}
             <Sidebar>
-                <SidebarItem type='list' icon={<Home size={20}/>} text="Home" active={menuactive === "Dashboard" ? true : false} onClick={() =>{setMenuactive("Dashboard")}}></SidebarItem>
+                <SidebarItem type='list' icon={<Home size={20}/>} text="Dashboard" active={menuactive === "Dashboard" ? true : false} onClick={() =>{setMenuactive("Dashboard")}}></SidebarItem>
               
                 <SidebarItem text="Master Data" type='header'/>
                 <SidebarItem type='list' icon={<Store size={20}/>} text="Toko" active={menuactive === "Toko" ? true : false} onClick={() =>{setMenuactive("Toko")}}></SidebarItem>
