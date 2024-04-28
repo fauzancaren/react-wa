@@ -46,7 +46,7 @@ export default function Sidebar({ children }) {
                 ${ 
                     expanded ? "font-bold text-blue-400" : "w-0"
                 }
-                `}>MGS APPLICATION</span>
+                `}>OBI APPLICATION</span>
                 <button
                     onClick={() => setExpanded((curr) => !curr)}
                     className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100"
