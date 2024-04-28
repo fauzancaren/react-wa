@@ -1,29 +1,26 @@
 import {BrowserRouter as Router,Routes, Route, Navigate} from 'react-router-dom'  
 import './App.css';
 import Login from './Pages/Login';
-import Dashboard from './Pages/Dashboard';   
-import { AuthProvider } from './Components/Auth/AuthContext'
-import RequireAuth  from './Components/Auth/AuthRequire'; 
-import 'bootstrap/dist/css/bootstrap.min.css';
-const App = () => {  
-
-  return (
-    <div className='app'>
+import Forgot from './Pages/Forgot';
+import Mainmenu from './Pages/Mainmenu';   
+import AuthProvider from './Components/Auth/AuthContext'
+import RequireAuth  from './Components/Auth/AuthRequire';  
+const App = () => {   
+  return ( 
     <AuthProvider>
       <Router>
-        <Routes>
-          <Route path="/" element={<Login/>} />  
+        <Routes> 
           <Route path="/login" element={<Login/>} /> 
-          <Route path="/Dashboard"  element={
+          <Route path="/forgot" element={<Forgot/>} /> 
+          <Route path="/"  element={
             <RequireAuth>
-              <Dashboard/> 
+              <Mainmenu/> 
             </RequireAuth>
           }  />
-          <Route path="*" element={<Navigate to="/login" replace/>} />  
+          <Route path="*" element={<Navigate to="/" replace/>} />  
         </Routes>
       </Router> 
-    </AuthProvider>
-    </div>
+    </AuthProvider> 
   );
 }
 

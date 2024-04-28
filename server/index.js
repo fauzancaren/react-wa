@@ -1,58 +1,55 @@
-const SocketIO = require('./socketio/base'); 
- 
-const express = require("express"); 
-const app = express(); // CREATE WEB  
-const port = process.env.NODE_PORT || 2000; 
-const http = require("http");
-const server = http.createServer(app); 
-const io = SocketIO.initIO(server);   
-const ioClientHandles  = require('./socketio/handler'); 
-io.on("connection", (socket) => {
-    ioClientHandles(socket); 
-});  
+const express = require("express")
+const app = express()
+const port = 3001 
+const mysql = require('mysql2/promise');
+const dbConfig = require("./connection")
+const response = require("./response") 
+const {decryptPassword,encryptPassword} = require("./password")
+var cors = require('cors')
 
-const waSessionFile = require("./whatsapp/session"); 
-const waManager = require('./whatsapp/base');
-//Membuat Seesion Whatsapp
-let dataSession = waSessionFile.loadData(); 
-dataSession.forEach(session => {
-    console.log(session.id);
-    waManager.init(session.id) 
-}); 
-server.listen(port,()=>{
-    console.log("server start"); 
-});
+app.use(express.json());
+app.use(express.urlencoded({ extended: true,limit: '500mb' })); 
+app.use(cors())
 
+app.post('/auth/login',(req,res)=>{
+    setTimeout(async ()=>{
+        const username = req.body.username;
+        const password = encryptPassword(req.body.password);
+        try { 
+            //cek username ready
+            const connection = await mysql.createConnection(dbConfig);
+            const [users] = await connection.execute(
+                'SELECT * FROM TblMsEmployee WHERE MsEmpIsActive = 1 AND MsEmpCode = ?',
+                [username]
+            ); 
+            if (users.length === 0) { 
+                response(201, {}, "User tidak ditemukan", res)  
+                await connection.end(); 
+                return  
+            } 
+            const [pasword] = await connection.execute(
+                'SELECT * FROM TblMsEmployee WHERE MsEmpIsActive = 1 AND MsEmpCode = ? and MsEmpPass = ?',
+                [username,password]
+            ); 
+            if (pasword.length === 0) { 
+                response(202, {}, "Password tidak cocok", res)  
+                await connection.end(); 
+                return  
+            } 
+            response(200, pasword, "User found", res)  
+        } catch (error) {
+            console.error('Database error:', error);
+            response(500, {}, "Internal server error", res) 
+        }
+    },3000);
+})
+app.post('/',(req,res) =>{
+    console.log(req.body)
+    db.query("select * from TblMsEmployee", (error,result) =>{
+        response(200, result, "get all data karyawan", res) 
+    }) 
+}) 
 
-const {init_app,router} = require("./express/base");
-init_app(app);
-app.use(router);
-
-// const myData = {
-//     id: "test2",
-//     name: 30,
-//     status: ["reading", "gaming", "hiking"]
-// }; 
-
-// sessionFile.saveData(myData);
-
-// // Data yang akan disimpan
-// const myData1 = {
-//     id: "test2",
-//     name: 30,
-//     status: ["reading", "gaming", "hiking"]
-// }; 
-// saveData(myData1);
-
-
-// const clientConfig = waClientConfig("0895352992663");
-// const client = new Client(clientConfig);
-// client.on('qr', waHandlers.handleQR);
-// client.on('ready', waHandlers.handleReady);
-// client.on('message', waHandlers.handleMessage);
-// client.initialize();
-
-// sessionFile.removeDataById("test2");
-// console.log('Loaded Data:', sessionFile.loadData());
-// sessionFile.updateDataById("test1", { name: 31, status: ["cycling", "test"] });
-// console.log('Loaded Data:', sessionFile.loadData());
+app.listen(port,() =>{
+    console.log(`example server create port ${port}`)
+})
